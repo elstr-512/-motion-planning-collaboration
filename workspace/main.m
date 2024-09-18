@@ -25,8 +25,8 @@ start = [sy, sx, pi / 2];
 goal = [gy, gx, pi / 2];
 
 %% initialize planner
-% global_planner_name = "a_star";
- global_planner_name = "dijkstra";
+global_planner_name = "a_star";
+% global_planner_name = "dijkstra";
 % global_planner_name = "voronoi_plan";
 
 local_planner_name = "pid_plan";
@@ -45,8 +45,8 @@ local_planner = str2func(local_planner_name);
 % path is from global planner, which is flipped for some reason
 % pose is from local planner
 
-plannerForPlot = "global";
-% plannerForPlot = "local";
+% plannerForPlot = "global";
+plannerForPlot = "local";
 
 if plannerForPlot == "global"
     pathEndY = path(1, 1);
@@ -55,9 +55,9 @@ if plannerForPlot == "global"
     pathReachedGoal = ...
         (pathEndX == gx) && (pathEndY == gy) ...
         || ...
-        ceil((pathEndX == gx)) && ceil((pathEndY == gy)) ...
+        (ceil(pathEndX) == gx) && (ceil(pathEndY) == gy) ...
         || ...
-        floor((pathEndX == gx)) && floor((pathEndY == gy)) ...
+        (floor(pathEndX) == gx) && (floor(pathEndY) == gy) ...
     ;
 
     if ~pathReachedGoal
@@ -75,9 +75,9 @@ elseif plannerForPlot == "local"
     poseReachedGoal = ...
         (poseEndX == gx) && (poseEndY == gy) ...
         || ...
-        ceil((poseEndX == gx)) && ceil((poseEndY == gy)) ...
+        (ceil(poseEndX) == gx) && (ceil(poseEndY) == gy) ...
         || ...
-        floor((poseEndX == gx)) && floor((poseEndY == gy)) ...
+        (floor(poseEndX) == gx) && (floor(poseEndY) == gy) ...
     ;
 
     if ~poseReachedGoal
@@ -117,7 +117,7 @@ curvature = abs(numerator ./ denominator);
 
 % Plot the original path
 figure;
-plot(x, y, 'o', 'DisplayName', 'Original Points');
+plot(x, y, 'o', 'DisplayName', 'Original Points', 'Color', [0.6274 0.5098 0.0352]);
 hold on;
 plot(ppval(spline_x, t_smooth), ppval(spline_y, t_smooth), 'DisplayName', 'Interpolated Path');
 xlabel('x');
@@ -154,14 +154,14 @@ hold on;
 % plot(t_smooth, curvature, 'DisplayName', 'Curvature');
 t_smooth_fitted = min(x) + t_smooth .* (max(x) - min(x));
 curvature_fitted = (min(y) + curvature .* (max(y) - min(y)));
-plot(t_smooth_fitted, curvature_fitted, 'DisplayName', 'Curvature');
+plot(t_smooth_fitted, curvature_fitted, 'DisplayName', 'Curvature', 'Color', [0.6274 0.5098 0.0352]);
 title('Curvature of the Parametric Path');
-xlabel('t (parameter)');
+xlabel('t-parameter scaled to path length');
 ylabel('|Curvature|');
 legend;
 
 % Put a datapoint for the curvatures mean on the figure
 curvature_fitted_mean = mean(curvature_fitted);
-plot(0, curvature_fitted_mean, 'p', 'DisplayName', 'Curvature mean');
+% plot(0, curvature_fitted_mean, 'p', 'DisplayName', 'Curvature mean');
 
 hold off;
