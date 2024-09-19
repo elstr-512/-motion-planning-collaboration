@@ -20,23 +20,21 @@ planners = [
     "dijkstra", ...
 ];
 
-curvCostArray   = zeros(1,1);
-lengthCostArray = zeros(1,1);
-
 % Specify the folder where the files live.
 for planner = 1:length(planners)
     folder = sprintf("out/%s", planners(planner));
 
     addpath(folder);
     dataFiles = dir(folder);
+    dataFiles = dataFiles(~matches({dataFiles.name}, [".", ".."]), :);
+
+    all_curvatures = cell(length(dataFiles),1);
+    all_lengths    = zeros(length(dataFiles),1);
+    all_distances  = cell(length(dataFiles),1);
     
     for file_i = 1:length(dataFiles)
         file = dataFiles(file_i);
-        disp(file.name);
-        disp(file_i);
-        if file.name == "." || file.name == ".."
-            continue; % skip these
-        end
+        fprintf("%4d / %-4d    %s\n", file_i, length(dataFiles), file.name)
     
         dataStruct = load(file.name);
         global_planner_name = dataStruct.global_planner_name;
@@ -73,18 +71,22 @@ for planner = 1:length(planners)
             numerator = x_1st_derivative .* y_2nd_derivative - y_1st_derivative .* x_2nd_derivative;
             denominator = (x_1st_derivative.^2 + y_1st_derivative.^2).^(3/2);
             
-            curvature = abs(numerator ./ denominator);
+            curvatures = abs(numerator ./ denominator)';
+
+            % Compute distance to obstacles
+            distances = distance_to_obstacles(grid_map, pose);
             
             %% Append data to arrays
-            lengthCostArray = [lengthCostArray, lengthCost];
-            curvCostArray = [curvCostArray curvature];
+            all_lengths(file_i) = lengthCost;
+            all_curvatures{file_i} = curvatures;
+            all_distances{file_i} = distances;
         end
         % M = mean(A, 2);
     end
     
     %% Save lengthCostArray & curvCostArray for plotting 
     save(sprintf("out/data_%s.mat", planners(planner)), ...
-        "lengthCostArray", "curvCostArray" ...
+        "all_lengths", "all_curvatures", "all_distances" ...
     )
 
 end
