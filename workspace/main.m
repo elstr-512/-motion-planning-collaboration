@@ -25,9 +25,9 @@ start = [sy, sx, pi / 2];
 goal = [gy, gx, pi / 2];
 
 %% initialize planner
-global_planner_name = "a_star";
+% global_planner_name = "a_star";
 % global_planner_name = "dijkstra";
-% global_planner_name = "voronoi_plan";
+global_planner_name = "voronoi_plan";
 
 local_planner_name = "pid_plan";
 %local_planner_name = "dwa_plan";
@@ -45,8 +45,9 @@ local_planner = str2func(local_planner_name);
 % path is from global planner, which is flipped for some reason
 % pose is from local planner
 
-% plannerForPlot = "global";
-plannerForPlot = "local";
+
+plannerForPlot = "global";
+% plannerForPlot = "local";
 
 if plannerForPlot == "global"
     pathEndY = path(1, 1);
@@ -117,17 +118,31 @@ curvature = abs(numerator ./ denominator);
 
 % Plot the original path
 figure;
-plot(x, y, 'o', 'DisplayName', 'Original Points', 'Color', [0.6274 0.5098 0.0352]);
+plot(x, y, 'o', 'DisplayName', 'Original Points', ...
+    'MarkerFaceColor', [0.10196078431372549 1.0 0.0],'MarkerEdgeColor', 'k', ...
+    'MarkerSize', 10 ...
+    );
 hold on;
-plot(ppval(spline_x, t_smooth), ppval(spline_y, t_smooth), 'DisplayName', 'Interpolated Path');
+
+plot(ppval(spline_x, t_smooth), ppval(spline_y, t_smooth), ...
+    'DisplayName', 'Interpolated Path', ...
+    'LineWidth',2.0, ...
+    'Color', [1.0, 0.0, 0.10196078431372549] ...
+);
+% D [0.0, 0.6, 1.0]
+% V [1.0, 0.0, 0.10196078431372549]
+
+
 xlabel('x');
 ylabel('y');
-legend('location','southeastoutside');
+legend('location','northwest');
 title('Original Path and Spline Interpolation');
 
 % plot start/goal
-plot(sx, sy, '*', 'DisplayName', 'Start');
-plot(gx, gy, '*', 'DisplayName', 'Goal');
+plot(sx, sy, 'square', 'DisplayName', 'Start', 'MarkerSize', 14, ...
+    'MarkerFaceColor', [1.0 0.0 0.10196078431372549],'MarkerEdgeColor', 'k');
+plot(gx, gy, 'square', 'DisplayName', 'Goal', 'MarkerSize', 14, ...
+    'MarkerFaceColor', [1.0  0.4  0.0],'MarkerEdgeColor', 'k' );
 
 % Place lengend for the obstacles
 plot(0, 0, 's', 'DisplayName', 'Obstacle', ...
@@ -141,7 +156,8 @@ for i = 1:size(grid_map,1)
             plot( ...
                 n, i, 's',... 
                 'MarkerEdgeColor','black', 'MarkerFaceColor', 'black', ...
-                'HandleVisibility', 'off'...
+                'HandleVisibility', 'off', ...
+                'MarkerSize', 12 ...
             );
         end
     end
@@ -154,14 +170,26 @@ hold on;
 % plot(t_smooth, curvature, 'DisplayName', 'Curvature');
 t_smooth_fitted = min(x) + t_smooth .* (max(x) - min(x));
 curvature_fitted = (min(y) + curvature .* (max(y) - min(y)));
-plot(t_smooth_fitted, curvature_fitted, 'DisplayName', 'Curvature', 'Color', [0.6274 0.5098 0.0352]);
+plot(t_smooth, curvature, 'DisplayName', 'Voronoi', ...
+    'Color', [1.0, 0.0, 0.10196078431372549], ...
+    'LineWidth',2.0 );
+
+t_smooth_2 = [0	0.0212765957446809	0.0425531914893617	0.0638297872340426	0.0851063829787234	0.106382978723404	0.127659574468085	0.148936170212766	0.170212765957447	0.191489361702128	0.212765957446809	0.234042553191489	0.255319148936170	0.276595744680851	0.297872340425532	0.319148936170213	0.340425531914894	0.361702127659575	0.382978723404255	0.404255319148936	0.425531914893617	0.446808510638298	0.468085106382979	0.489361702127660	0.510638297872340	0.531914893617021	0.553191489361702	0.574468085106383	0.595744680851064	0.617021276595745	0.638297872340426	0.659574468085106	0.680851063829787	0.702127659574468	0.723404255319149	0.744680851063830	0.765957446808511	0.787234042553192	0.808510638297872	0.829787234042553	0.851063829787234	0.872340425531915	0.893617021276596	0.914893617021277	0.936170212765958	0.957446808510638	0.978723404255319	1]
+curvature_2 = [0	0	0	4.00000000000000	0	0	0	0	0	0	0	0	0.707106781186547	0	0	0	0	4.00000000000001	0	0.707106781186547	0	0	0	0	0	4.00000000000000	0	0	0	0	0	0	0	0.707106781186550	0	0	0	0	0	0	0	0	3.99999999999998	0	0	0	0	0];
+plot(t_smooth_2, curvature_2, 'DisplayName', 'Dijkstra', ...
+    'Color', [0.0, 0.6, 1.0], ...
+    'LineWidth',2.0 );
+
 title('Curvature of the Parametric Path');
-xlabel('t-parameter scaled to path length');
+xlabel('t');
 ylabel('|Curvature|');
 legend;
 
+
+
 % Put a datapoint for the curvatures mean on the figure
-curvature_fitted_mean = mean(curvature_fitted);
+% curvature_fitted_mean = mean(curvature_fitted);
 % plot(0, curvature_fitted_mean, 'p', 'DisplayName', 'Curvature mean');
 
 hold off;
+
