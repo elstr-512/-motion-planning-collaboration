@@ -9,7 +9,7 @@ function [curvatures, lengths, distances] = load_data(file)
     all_data = load(file);
     curvatures = vertcat(all_data.all_curvatures{:});
     curvatures = curvatures(curvatures > 0);
-    curvatures = curvatures(curvatures < 6);
+    curvatures = curvatures(curvatures < 6);    
     lengths = vertcat(all_data.all_lengths(:));
     distances = vertcat(all_data.all_distances{:});
 end
@@ -36,13 +36,13 @@ end
 [distances, distances_idx] = combine_data({distances_a_star; distances_dijkstra; distances_voronoi_plan; distances_gbfs; distances_theta_star});
 
 %% Plotting visuals
-algorithms = {'PID-A*', 'PID-Dijkstra', 'PID-Voronoi', 'gbfs', 'theta_star'};
+algorithms = {'A*', 'Dijkstra', 'Voronoi', 'Gbfs', 'Theta*'};
 colororders = [
-    0.2627, 0.2235, 0.8863; % #4339e2
-    0.0627, 1.0000, 0.2627; % #10ff43
-    0.8980, 0.2431, 0.2667; % #e53e44
-    0.6274, 0.5098, 0.0352; % #a08209
-    0.6274, 0.5098, 0.0352; % #a08209 TODO NEED ANOTHER COLOR
+    0.10196078431372549, 1.0, 0.0; 
+    0.0, 0.6, 1.0; 
+    1.0, 0.0, 0.10196078431372549; 
+    0.4, 0.0, 1.0; 
+    1.0 , 0.4 , 0.0; 
 ];
 
 %% Box chart length
@@ -54,12 +54,23 @@ function make_boxplot(data, colororders, algorithms, y_label, name)
     figure; hold on; colororder(colororders);
     % Customize colors for each algorithm
     for i = 1:length(data)
-        boxchart(repmat(i, length(data{i}), 1), data{i});
+        boxchart(repmat(i, length(data{i}), 1), data{i}, 'boxfacealpha', 0.6); 
+    end
+    for i = 1:length(data)
 
-         plot(i, mean(data{1}), 'square', ...
-             'MarkerFaceColor', 'k','MarkerEdgeColor', 'k' ...
+         % plot black square for median since it disappeared on some boxes
+         % when they overlap with the edge
+         plot(i, median(data{i}), 'square', ...
+             'MarkerFaceColor', 'k','MarkerEdgeColor', 'k', ...
+             'MarkerSize', 8 ...
          );
     end
+    % make every plot start at (0,0)
+    plot(0, 0, '.', ...
+             'MarkerFaceColor', 'w','MarkerEdgeColor', 'w', ...
+             'MarkerSize', 1 ...
+         );
+
     hold off;
     
     % Add labels and legend
@@ -67,7 +78,8 @@ function make_boxplot(data, colororders, algorithms, y_label, name)
     xticklabels(algorithms);
     ylabel(y_label);
     title(name);
-    % legend(algorithms, 'Location', 'eastoutside');
+    legend(algorithms, 'Location', 'northeastoutside', 'FontSize', 20);
+
 end
 
 make_boxplot({curvatures_a_star; curvatures_dijkstra; curvatures_voronoi_plan; curvatures_gbfs; curvatures_theta_star}, ...
