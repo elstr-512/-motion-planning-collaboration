@@ -1,6 +1,6 @@
 AlgName,Mean,Median
-a_star,2.24,0.71
-dijkstra,3.11,4
-voronoi_plan,39.56,40.13
-gbfs,54.4,54.86
+a_star,39.56,40.13
+dijkstra,39.42,39.71
+voronoi_plan,54.4,54.86
+gbfs,42.42,42.78
 theta_star,37.84,37.84
