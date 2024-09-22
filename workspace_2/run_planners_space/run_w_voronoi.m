@@ -116,7 +116,7 @@ for map_i = 1:length(dataFiles)
                     % since voronio worked run the other planners
                     for planner_i = 1:length(planners)
                         planner_name = planners(planner_i);
-                        
+                        planner = str2func(planner_name);
                         [path, flag, cost, expand] = planner(grid_map, start, goal);
                         if flag == 1
                             save(sprintf(...
