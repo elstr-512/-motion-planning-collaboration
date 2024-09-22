@@ -20,6 +20,37 @@ end
 [curvatures_gbfs, lengths_gbfs, distances_gbfs] = load_data("workspace_2/run_planners_space/out/data_gbfs.mat");
 [curvatures_theta_star, lengths_theta_star, distances_theta_star] = load_data("workspace_2/run_planners_space/out/data_theta_star.mat");
 
+%%
+% Save to table data
+met_n = {'curvatures_', 'lengths_', 'distances_'};
+alg_n = {'a_star', 'dijkstra', 'voronoi_plan', 'gbfs', 'theta_star'};
+dat_n = ...
+{ ...
+    curvatures_a_star, curvatures_dijkstra, curvatures_voronoi_plan, curvatures_gbfs, curvatures_theta_star, ...
+    lengths_a_star, lengths_dijkstra, lengths_voronoi_plan, lengths_gbfs, lengths_theta_star, ...
+    distances_a_star, distances_dijkstra, distances_voronoi_plan, distances_gbfs, distances_theta_star ...
+}
+for m = 1:length(met_n)
+    data = {alg_n{1}, mean(dat_n{1*m}), median(dat_n{1*m}); ...
+            alg_n{2}, mean(dat_n{2*m}), median(dat_n{2*m}); ...
+            alg_n{3}, mean(dat_n{3*m}), median(dat_n{3*m}); ...
+            alg_n{4}, mean(dat_n{4*m}), median(dat_n{4*m}); ...
+            alg_n{5}, mean(dat_n{5*m}), median(dat_n{5*m}); ...
+    }
+    
+    headers = {'AlgName', 'Mean', 'Median'};
+    T = table(data(:,1), data(:,2), data(:,3), ...
+        'VariableNames', headers ...
+    );
+    
+    % Export as Excel fil
+    excelFile = sprintf('workspace_2/graph/table_data/%stable_data.xlsx', met_n{m});
+    writetable(T, excelFile, 'Sheet', 'Sheet1');
+    % Export as CSV file
+    csvFile = sprintf('workspace_2/graph/table_data/%stable_data.csv', met_n{m});
+    writetable(T, csvFile);
+end
+
 
 %% Combine data
 function [data, idx] = combine_data(all_data)
@@ -44,6 +75,8 @@ colororders = [
     0.4, 0.0, 1.0; 
     1.0 , 0.4 , 0.0; 
 ];
+
+
 
 %% Box chart length
 % https://se.mathworks.com/help/matlab/ref/boxchart.html
